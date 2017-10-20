@@ -3,4 +3,8 @@ Rails.application.routes.draw do
 
   root "playlists#index"
 
+  get "/playlists/show" => "playlists#show"
+
+  get "/playlists/delete" => "playlists#destroy"
+
 end

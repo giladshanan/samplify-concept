@@ -33,11 +33,14 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
+# Samplify:
 # Ruby wrapper for Spotify
 gem 'rspotify'
-
 # dotenv
 gem 'dotenv-rails', groups: [:development, :test]
+# paperclip-av-transcoder
+gem 'paperclip-av-transcoder'
+
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

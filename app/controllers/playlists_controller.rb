@@ -2,7 +2,8 @@ class PlaylistsController < ApplicationController
 
   def index
     RSpotify.authenticate(ENV["spotify_client_id"], ENV["spotify_secret_id"])
-    me = RSpotify::User.find('ryanmccool13')
+    # me = RSpotify::User.find('ryanmccool13')
+    me = RSpotify::User.find('12122573728')
     me.playlists.each do |playlist|
       puts playlist.name
     end

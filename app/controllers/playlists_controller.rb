@@ -4,11 +4,16 @@ class PlaylistsController < ApplicationController
     RSpotify.authenticate(ENV["spotify_client_id"], ENV["spotify_secret_id"])
     # me = RSpotify::User.find('ryanmccool13')
     me = RSpotify::User.find('12122573728')
-    me.playlists.each do |playlist|
-      puts playlist.name
+    # me.playlists.each do |playlist|
+    #   puts playlist.name
+    # end
+     # puts me.playlists[0].tracks.first.preview_url
+     # puts me.playlists[0].tracks.first.album.images
+     playlist = me.playlists.first
+     puts playlist.tracks.count
+     playlist.tracks.each do |track|
+      puts track.preview_url
     end
-     puts me.playlists[0].tracks.first.preview_url
-     puts me.playlists[0].tracks.first.album.images
   end
 
 # # Now you can access playlists in detail, browse featured content and more

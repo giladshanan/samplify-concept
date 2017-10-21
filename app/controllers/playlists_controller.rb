@@ -3,7 +3,7 @@ require 'aws-sdk'
 class PlaylistsController < ApplicationController
 
   def index
-    RSpotify.authenticate(ENV["spotify_client_id"], ENV["spotify_secret_id"])
+    RSpotify.authenticate(ENV["SPOTIFY_CLIENT_ID"], ENV["SPOTIFY_CLIENT_SECRET"])
     # me = RSpotify::User.find('ryanmccool13')
     me = RSpotify::User.find('12122573728')
     # me.playlists.each do |playlist|
@@ -11,36 +11,60 @@ class PlaylistsController < ApplicationController
     # end
     # puts me.playlists[0].tracks.first.preview_url
     # puts me.playlists[0].tracks.first.album.images
+
+    # Test playlist
     playlist = me.playlists.first
+    # Verify 10 tracks:
     puts playlist.tracks.count
+    # print name to console
     puts playlist.name
-    file = File.open("/Users/apprentice/Desktop/mylist.txt", 'w') #{ |file| file.write("yourtext")}
+    #
+    music_file = File.open("mp3s/#{playlist.name}-mp3s.txt", 'w') #{ |file| file.write("yourtext")}
+    image_file = File.open("mp3s/#{playlist.name}-images.txt", 'w') #{ |file| file.write("yourtext")}
+
     playlist.tracks.each do |track|
       if track.preview_url
-        file.puts("file " + track.preview_url.to_s)
+        music_file.puts("file " + track.preview_url.to_s)
+      end
+      if track.album.images
+        image_file.puts("file '#{track.album.images[0]["url"]}'")
+        image_file.puts("duration 30")
       end
     end
-    file.close unless file.nil?
+    image_file.puts("file '#{playlist.tracks.last.album.images[0]["url"]}'")
+    music_file.close unless music_file.nil?
+    image_file.close unless image_file.nil?
 
-    system "ffmpeg -f concat -safe 0 -protocol_whitelist 'file,http,https,tcp,tls' -i /Users/apprentice/Desktop/mylist.txt -c copy testoutput5.mp3"
-    system "ffmpeg -i testoutput5.mp3 -c:a aac -b:a 128k output.m4a"
-    system "ffmpeg -loop 1 -i img.jpg -i output.m4a -c:v libx264 -c:a copy -shortest out2.mp4"
+    # system "ffmpeg -f concat -safe 0 -protocol_whitelist 'file,http,https,tcp,tls' -i /Users/apprentice/Desktop/mylist.txt -c copy testoutput5.mp3"
+    # system "ffmpeg -i testoutput5.mp3 -c:a aac -b:a 128k output.m4a"
+    # system "ffmpeg -loop 1 -i img.jpg -i output.m4a -c:v libx264 -c:a copy -shortest out2.mp4"
 
+    #  Reference command:
+    # ffmpeg -framerate 1/30 -i giladshow/gilad%03d.jpg -i masterpiece.m4a firstAttempt.mp4
+
+    # This command did not need an m4a conversion. The -c:a aac and -b:a 128k commands offered implicit conversion:
+    # ffmpeg -framerate 1/30 -i giladshow/gilad%03d.jpg -i mp3s/output3.mp3 -c:a aac -b:a 128k secondAttempt.mp4
+
+    system "ffmpeg -f concat -safe 0 -protocol_whitelist 'file,http,https,tcp,tls' -i mp3s/#{playlist.name}-mp3s.txt -c copy mp3s/keepItSimpleStupid.mp3"
+    system "ffmpeg -f concat -safe 0 -protocol_whitelist 'file,http,https,tcp,tls' -i mp3s/#{playlist.name}-images.txt -i mp3s/keepItSimpleStupid.mp3 -c:a aac -b:a 128k -c:v libx264 mp3s/eigthAttempt.mp4"
+    # system "ffmpeg -i seventhAttempt.mp4 eighthMix.mp4"
+    File.delete("mp3s/#{playlist.name}-mp3s.txt")
+    File.delete("mp3s/#{playlist.name}-images.txt")
   end
 
   def show
-    file_name = 'output3.mp3'
+    @file_name = 'eigthAttempt.mp4'
 
     s3 = Aws::S3::Resource.new(region: ENV['AWS_REGION'])
-    obj = s3.bucket('dbc-team-samplify-test').object(file_name)
-    puts "Uploading file #{file_name}"
-    obj.upload_file("/Users/apprentice/Desktop/#{file_name}")
+    obj = s3.bucket('dbc-team-samplify-test').object(@file_name)
+    puts "Uploading file #{@file_name}"
+    obj.upload_file("mp3s/#{@file_name}")
     puts "Done"
   end
 
   def destroy
-    file_name = 'output3.mp3'
-    File.delete("/Users/apprentice/Desktop/#{file_name}")
+    # file_name = 'output3.mp3'
+    # File.delete("/Users/apprentice/Desktop/#{file_name}")
   end
 
 # # Now you can access playlists in detail, browse featured content and more
